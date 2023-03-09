@@ -9,5 +9,7 @@
         public bool isLive { get; set; }
 
         public DateTime ReleaseDate { get; set; }
+
+        public HashSet<Cinema> Cinemas { get; set; } = new();
     }
 }

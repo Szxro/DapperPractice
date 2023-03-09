@@ -12,7 +12,7 @@ namespace DapperPractice.Repositories.MoviesRepository
         Task<object> GetMovieByIdExeception(int id);
 
         //QueryFirstorDefaultAsync()
-        Task<object> GetMovieByIdDefault(int id);
+        Task<object?> GetMovieByIdDefault(int id);
 
         //ExecuteAsync(is often use when you only going to execute a query dont return nothing)
         Task InsertMovie(MovieDTO movieDTO);
@@ -28,6 +28,12 @@ namespace DapperPractice.Repositories.MoviesRepository
         Task<object> GetMovieAndMovieGenders(int id);
 
         //Query(is often use to query specific columns)
-        Task<Movies> GetSpecifyMovie(); 
+        Task<Movies> GetSpecifyMovie();
+
+        //Executing a stored procedure
+        Task<Movies?> ExecuteStoredProcedure(int id);
+
+        //RelationShips
+        Task<IEnumerable<object>> GetManyToMany();
     }
 }

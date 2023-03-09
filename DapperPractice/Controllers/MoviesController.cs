@@ -59,6 +59,20 @@ namespace DapperPractice.Controllers
             return Ok(await _repository.GetMovieAndMovieGenders(id));
         }
 
+        [HttpGet("get/ExecutedMovieProcedure/{id:int}")]
+
+        public async Task<ActionResult<Movies?>> ExecuteMovieProcedure(int id)
+        {
+            return Ok(await _repository.ExecuteStoredProcedure(id));
+        }
+
+        [HttpGet("get/ManyToMany")]
+
+        public async Task<ActionResult<IEnumerable<object>>> GetManyToMany()
+        {
+            return Ok(await _repository.GetManyToMany());
+        }
+
         [HttpPost("post/Movie")]
 
         public async Task<ActionResult> InsertMovie(MovieDTO movieDTO)

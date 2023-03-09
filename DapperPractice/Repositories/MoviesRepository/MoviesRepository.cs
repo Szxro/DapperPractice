@@ -1,20 +1,20 @@
 ﻿using Dapper;
 using DapperPractice.Connection;
 using DapperPractice.Exeptions;
+using DapperPractice.Utilities;
 using DTOS;
 using Entities;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace DapperPractice.Repositories.MoviesRepository
 {
     public class MoviesRepository : IMovieRepository
     {
-        private readonly IConfiguration _config;
         private readonly ISqlConnectionFactory _connection;
 
-        public MoviesRepository(IConfiguration config,ISqlConnectionFactory connection)
+        public MoviesRepository(ISqlConnectionFactory connection)
         {
-            _config = config;
             _connection = connection;
         }
 
@@ -57,12 +57,12 @@ namespace DapperPractice.Repositories.MoviesRepository
             return movies;
         }
 
-        public async Task<object> GetMovieByIdDefault(int id)
+        public async Task<object?> GetMovieByIdDefault(int id)
         {
             await using SqlConnection sqlConnection = _connection.CreateConnection();
 
             //QueryFirstOrDefaultAsync (is the same as QueryFirst but dont throw an exception)
-            Movies movies = await sqlConnection.QueryFirstOrDefaultAsync<Movies>(@"SELECT * FROM Movies M Where M.Id = @Id", new {Id = id });
+            Movies? movies = await sqlConnection.QueryFirstOrDefaultAsync<Movies>(@"SELECT * FROM Movies M Where M.Id = @Id", new {Id = id });
 
             if (movies is null)
             {
@@ -137,6 +137,37 @@ namespace DapperPractice.Repositories.MoviesRepository
             Movies movies = await sqlConnection.QueryFirstAsync<Movies>(sql);
 
             return movies;
+        }
+
+        public async Task<Movies?> ExecuteStoredProcedure(int id)
+        {
+            await using SqlConnection sqlConnection = _connection.CreateConnection();
+
+            Movies? movies = await sqlConnection.QueryFirstOrDefaultAsync<Movies>("GetMovieById", new { id }, commandType:CommandType.StoredProcedure);
+
+            if (movies is null)
+            {
+                throw new ExeceptionNotItems($"Not Movie was found with id of {id}");
+            }
+
+            return movies;
+        }
+        public async Task<IEnumerable<object>> GetManyToMany()
+        {
+            string sql = @"SELECT M.Id,M.Name,M.IsLive,M.ReleaseDate,C.Price,C.CinemaType,C.Id
+                           FROM Movies M
+                           INNER JOIN CinemaMovies cm ON cm.MovieId = M.Id
+                           INNER JOIN Cinemas C On C.Id = cm.CinemaId";
+
+            await using SqlConnection sqlConnection = _connection.CreateConnection();
+
+            var movies = await sqlConnection.QueryAsync<Movies, Cinema, Movies>(sql, (movies,cinemas) => 
+            {
+                movies.Cinemas.Add(cinemas);
+                return movies;
+            },splitOn:"Id,Id");
+
+            return movies.Select(prop => new {Movies = prop.ToMovieDto(),Cinema = prop.Cinemas.Select(x => x.ToCinemaDto()) });
         }
     }
 }
