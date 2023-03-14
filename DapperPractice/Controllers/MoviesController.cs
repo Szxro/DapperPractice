@@ -73,6 +73,13 @@ namespace DapperPractice.Controllers
             return Ok(await _repository.GetManyToMany());
         }
 
+        [HttpGet("get/getByUrl")]
+
+        public async Task<ActionResult<string>> GetByUrl(string url)
+        {
+            return Ok(await _repository.GetByUrl(url));
+        }
+
         [HttpPost("post/Movie")]
 
         public async Task<ActionResult> InsertMovie(MovieDTO movieDTO)

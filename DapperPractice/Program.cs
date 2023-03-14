@@ -1,4 +1,5 @@
 using DapperPractice.Connection;
+using DapperPractice.HttpRequests;
 using DapperPractice.MiddleWares;
 using DapperPractice.Repositories.MoviesRepository;
 using Microsoft.AspNetCore.Builder;
@@ -7,7 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 {
     // Add services to the container.
     builder.Services.AddControllers();
+    builder.Services.AddScoped<HttpRequestHandler>();
+    builder.Services.AddScoped<HandlerExceptionRequest>();   
     builder.Services.AddScoped<IMovieRepository, MoviesRepository>();
+    builder.Services.AddHttpClient<IMovieRepository, MoviesRepository>()
+                    .AddHttpMessageHandler<HttpRequestHandler>()
+                    .AddHttpMessageHandler<HandlerExceptionRequest>();
     builder.Services.AddTransient<ISqlConnectionFactory, SqlConnectionFactory>();
     //MiddleWare
     builder.Services.AddTransient<GlobalErrorHandlingMiddleWare>(); // Have to register the server because is implementing an interface

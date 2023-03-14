@@ -12,10 +12,12 @@ namespace DapperPractice.Repositories.MoviesRepository
     public class MoviesRepository : IMovieRepository
     {
         private readonly ISqlConnectionFactory _connection;
+        private readonly HttpClient _client;
 
-        public MoviesRepository(ISqlConnectionFactory connection)
+        public MoviesRepository(ISqlConnectionFactory connection,HttpClient client)
         {
             _connection = connection;
+            _client = client;
         }
 
         public async Task<object> CountMovies()
@@ -168,6 +170,13 @@ namespace DapperPractice.Repositories.MoviesRepository
             },splitOn:"Id,Id");
 
             return movies.Select(prop => new {Movies = prop.ToMovieDto(),Cinema = prop.Cinemas.Select(x => x.ToCinemaDto()) });
+        }
+
+        public async Task<string> GetByUrl(string url)
+        {
+            //Making the request for the desired url
+            var response = await _client.GetAsync(url);
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

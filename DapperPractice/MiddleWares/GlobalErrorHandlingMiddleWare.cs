@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace DapperPractice.MiddleWares
 {
@@ -19,8 +20,14 @@ namespace DapperPractice.MiddleWares
             catch(Exception ex)
             {
                 _logger.LogError(ex,ex.Message);
+                context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 //HttpsStatusCode => Enum
+                await context.Response.WriteAsJsonAsync(new ErrorDetails
+                { 
+                    StatusCode= (int)HttpStatusCode.InternalServerError,
+                    Message = ex.Message
+                });
             }
         }
     }

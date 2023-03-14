@@ -35,5 +35,8 @@ namespace DapperPractice.Repositories.MoviesRepository
 
         //RelationShips
         Task<IEnumerable<object>> GetManyToMany();
+
+        //HttpClient
+        Task<string> GetByUrl(string url);
     }
 }
